@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import mockToDos from './mocks/mockToDos'
-
+type UUID = `${string}-${string}-${string}-${string}-${string}`
 type ToDo = {
-  id: number
+  id: UUID
   name: string
   completed: boolean
 }
@@ -11,9 +10,13 @@ type ToDo = {
 const TODOS = 'todos'
 
 export default function App() {
-  const [toDos, setToDos] = useState<ToDo[]>([])
+  const storedToDos = localStorage.getItem(TODOS)
+  const [toDos, setToDos] = useState<ToDo[]>(
+    storedToDos ? JSON.parse(storedToDos) : []
+  )
+  const [newToDo, setNewToDo] = useState('')
 
-  const toggleToDo = (id: number) => {
+  const toggleToDo = (id: UUID) => {
     const updatedToDos = toDos.map((toDo: ToDo) => ({
       ...toDo,
       completed: toDo.id === id ? !toDo.completed : toDo.completed,
@@ -22,16 +25,43 @@ export default function App() {
     setToDos(updatedToDos)
   }
 
+  const handleSubmitToDo = () => {
+    const newToDos = [
+      ...toDos,
+      { id: crypto.randomUUID(), name: newToDo, completed: false },
+    ]
+    setToDos(newToDos)
+    setNewToDo('')
+  }
+
   useEffect(() => {
-    const storedToDoJsonString = localStorage.getItem(TODOS)
-    if (storedToDoJsonString) {
-      setToDos(JSON.parse(storedToDoJsonString))
-    }
-  }, [])
+    localStorage.setItem(TODOS, JSON.stringify(toDos))
+  }, [toDos])
 
   return (
     <>
       <h1>To Dos</h1>
+
+      <input
+        aria-label="Enter New To Do"
+        value={newToDo}
+        onChange={(e) => {
+          setNewToDo(e.target.value)
+        }}
+        onKeyDown={(e) => {
+          if (e.code === 'Enter') {
+            handleSubmitToDo()
+          }
+        }}
+      />
+      <button
+        aria-label="Submit New To Do"
+        name="submit"
+        onClick={handleSubmitToDo}
+        disabled={!newToDo}
+      >
+        +
+      </button>
       {toDos.map(({ id, name, completed }) => (
         <label key={id} htmlFor={name} style={{ color: 'white' }}>
           <input
