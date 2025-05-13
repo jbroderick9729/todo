@@ -94,4 +94,30 @@ describe('App', () => {
       expect(screen.getByLabelText('Get a new job')).not.toBeChecked()
     })
   })
+
+  describe('deleting todos', () => {
+    test('should confirm before deleting', async () => {
+      render(<App />)
+      expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
+      const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
+
+      await userEvent.click(deleteDogToDo)
+      await userEvent.click(screen.getByText('Cancel'))
+      expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
+    })
+
+    test('should remove todo from localStorage upon deleting', async () => {
+      render(<App />)
+      expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
+      const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
+      await userEvent.click(deleteDogToDo)
+      await userEvent.click(screen.getByText('Delete'))
+
+      expect(setItemSpy).toHaveBeenCalledTimes(3)
+
+      expect(
+        screen.queryByLabelText('Bring dog to vet')
+      ).not.toBeInTheDocument()
+    })
+  })
 })
