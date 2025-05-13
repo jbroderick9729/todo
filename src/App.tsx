@@ -39,40 +39,54 @@ export default function App() {
   }, [toDos])
 
   return (
-    <>
-      <h1>To Dos</h1>
-
-      <input
-        aria-label="Enter New To Do"
-        value={newToDo}
-        onChange={(e) => {
-          setNewToDo(e.target.value)
-        }}
-        onKeyDown={(e) => {
-          if (e.code === 'Enter') {
-            handleSubmitToDo()
-          }
-        }}
-      />
-      <button
-        aria-label="Submit New To Do"
-        name="submit"
-        onClick={handleSubmitToDo}
-        disabled={!newToDo}
-      >
-        +
-      </button>
-      {toDos.map(({ id, name, completed }) => (
-        <label key={id} htmlFor={name} style={{ color: 'white' }}>
+    <div className="flex flex-col items-center">
+      <h1 className="text-6xl mt-10 mb-5 ">To Dos</h1>
+      <div className="flex flex-col justify-center">
+        <div>
           <input
-            id={name}
-            type="checkbox"
-            checked={completed}
-            onChange={() => toggleToDo(id)}
+            className="outline-none border-b-2 border-b-white w-100 placeholder:text-2xl placeholder:text-center"
+            aria-label="Enter New To Do"
+            value={newToDo}
+            onChange={(e) => {
+              setNewToDo(e.target.value)
+            }}
+            onKeyDown={(e) => {
+              if (e.code === 'Enter') {
+                handleSubmitToDo()
+              }
+            }}
+            placeholder="What do you need to do?"
+            autoFocus
           />
-          {name}
-        </label>
-      ))}
-    </>
+          <button
+            className="text-2xl p-2"
+            aria-label="Submit New To Do"
+            name="submit"
+            onClick={handleSubmitToDo}
+            disabled={!newToDo}
+          >
+            +
+          </button>
+        </div>
+        <div className="flex flex-col text-2xl">
+          {toDos.map(({ id, name, completed }) => (
+            <label
+              className={`${completed ? 'line-through  text-gray-500' : null}`}
+              key={id}
+              htmlFor={name}
+            >
+              <input
+                className="m-4 h-5 w-5"
+                id={name}
+                type="checkbox"
+                checked={completed}
+                onChange={() => toggleToDo(id)}
+              />
+              {name}
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
