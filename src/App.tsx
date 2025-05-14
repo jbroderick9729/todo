@@ -15,7 +15,7 @@ export default function App() {
     storedToDos ? JSON.parse(storedToDos) : []
   )
   const [newToDo, setNewToDo] = useState('')
-  const [toDoToDelete, setToDoToDelete] = useState<UUID | null>()
+  const [toDoToDelete, setToDoToDelete] = useState<UUID | null | 'ALL'>()
   const modalRef = useRef<HTMLDialogElement>(null)
 
   const toggleToDo = (id: UUID) => {
@@ -42,7 +42,7 @@ export default function App() {
     modalRef.current?.showModal()
   }
 
-  const handleDeleteToDo = (id: UUID) => {
+  const handleDelete = (id: UUID | 'ALL') => {
     setToDoToDelete(id)
     handleOpenConfirmation()
   }
@@ -53,9 +53,11 @@ export default function App() {
   }
 
   const handleConfirmDelete = () => {
-    setToDos(
-      toDoToDelete ? toDos.filter((toDo: ToDo) => toDo.id !== toDoToDelete) : []
-    )
+    const newToDos =
+      toDoToDelete === 'ALL'
+        ? []
+        : toDos.filter((toDo: ToDo) => toDo.id !== toDoToDelete)
+    setToDos(newToDos)
 
     handleCloseConfirmation()
   }
@@ -70,7 +72,9 @@ export default function App() {
       {!!toDos.length && (
         <button
           className="p-2 text-red-500 outline-1 opacity-75 hover:opacity-100 cursor-pointer rounded"
-          onClick={handleOpenConfirmation}
+          onClick={() => {
+            handleDelete('ALL')
+          }}
           disabled={!toDos.length}
         >
           Delete All To Dos
@@ -127,7 +131,7 @@ export default function App() {
                   className="font-medium p-2 text-red-500 ml-2 text-2xl opacity-75 hover:opacity-100"
                   aria-label="Delete To Do"
                   onClick={() => {
-                    handleDeleteToDo(id)
+                    handleDelete(id)
                   }}
                 >
                   x
@@ -151,9 +155,9 @@ export default function App() {
         </header>
         <div className="w-100 h-40 flex items-center justify-center p-6">
           Are you sure you want to delete
-          {toDoToDelete
-            ? ` "${toDos.find((toDo) => toDo.id === toDoToDelete)?.name}"`
-            : ' all to dos'}
+          {toDoToDelete === 'ALL'
+            ? ' all to dos'
+            : ` "${toDos.find((toDo) => toDo.id === toDoToDelete)?.name}"`}
           ?
         </div>
         <footer className="flex justify-around p-4 border-t-2 border-gray-200">
