@@ -12,12 +12,12 @@ type ToDo = {
 const TODOS = 'todos'
 
 export default function App() {
-  const storedToDos = localStorage.getItem(TODOS)
-  const [toDos, setToDos] = useState<ToDo[]>(
-    storedToDos ? JSON.parse(storedToDos) : []
-  )
+  const [toDos, setToDos] = useState<ToDo[]>(() => {
+    const storedToDos = localStorage.getItem(TODOS)
+    return storedToDos ? JSON.parse(storedToDos) : []
+  })
   const [newToDo, setNewToDo] = useState('')
-  const [toDoToDelete, setToDoToDelete] = useState<UUID | null | 'ALL'>()
+  const [toDoToDelete, setToDoToDelete] = useState<UUID | null | 'ALL'>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   const toggleToDo = (id: UUID) => {
