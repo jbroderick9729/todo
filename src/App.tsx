@@ -137,7 +137,7 @@ export default function App() {
           ) : (
             <div className="h-100 italic text-gray-500 flex justify-center items-center text-center text-base">
               Nothing to do yet!
-              <br /> Type your first to do above to get started
+              <br /> Type your first to do above to get started.
             </div>
           )}
         </div>
