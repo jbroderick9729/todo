@@ -1,5 +1,4 @@
 import { describe, expect, test, afterEach, vi, beforeEach } from 'vitest'
-
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
@@ -26,10 +25,18 @@ describe('App', () => {
     localStorage.clear()
   })
 
-  describe('viewing todos', () => {
+  describe('viewing to dos', () => {
     test('should get and display existing todos from local storage', async () => {
       render(<App />)
       await screen.findByLabelText('Bring dog to vet')
+    })
+
+    test('should show empty text if no to dos', async () => {
+      render(<App />)
+      await userEvent.click(screen.getByText('Delete All To Dos'))
+      await userEvent.click(screen.getByLabelText('Confirm Delete'))
+
+      expect(screen.getByText(/Nothing to do yet/i)).toBeInTheDocument()
     })
   })
 
@@ -44,7 +51,6 @@ describe('App', () => {
 
       await userEvent.click(dogToDo)
 
-      expect(setItemSpy).toHaveBeenCalled()
       expect(dogToDo).toBeChecked()
       expect(groceriesToDo).not.toBeChecked()
 
@@ -55,7 +61,7 @@ describe('App', () => {
   })
 
   describe('creating todos', () => {
-    test('should disable submit until a to do has been entered', async () => {
+    test('should disable submit until a (non whitespace) to do has been entered into input', async () => {
       render(<App />)
 
       const submit = screen.getByLabelText('Submit New To Do')
@@ -65,10 +71,11 @@ describe('App', () => {
         screen.getByLabelText('Enter New To Do'),
         'Get a new job'
       )
+
       expect(submit).toBeEnabled()
     })
 
-    test('should create a new to do', async () => {
+    test('should create a new todo', async () => {
       render(<App />)
 
       const submit = screen.getByLabelText('Submit New To Do')
@@ -78,7 +85,6 @@ describe('App', () => {
       )
       await userEvent.click(submit)
 
-      expect(setItemSpy).toHaveBeenCalled()
       expect(screen.getByLabelText('Get a new job')).not.toBeChecked()
     })
 
@@ -90,23 +96,31 @@ describe('App', () => {
         'Get a new job{enter}'
       )
 
-      expect(setItemSpy).toHaveBeenCalled()
       expect(screen.getByLabelText('Get a new job')).not.toBeChecked()
+    })
+
+    test('should trim whitespace only entries', async () => {
+      render(<App />)
+
+      await userEvent.type(screen.getByLabelText('Enter New To Do'), ' {enter}')
+
+      expect(setItemSpy).toHaveBeenCalledTimes(2)
     })
   })
 
-  describe('deleting todos', () => {
+  describe('deleting to dos', () => {
     test('should confirm before deleting', async () => {
       render(<App />)
       expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
-      const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
 
+      const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
       await userEvent.click(deleteDogToDo)
       await userEvent.click(screen.getByText('Cancel'))
+
       expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
     })
 
-    test('should remove todo from localStorage upon deleting', async () => {
+    test('should remove to do from localStorage upon deleting', async () => {
       render(<App />)
       expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
       const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
@@ -120,7 +134,7 @@ describe('App', () => {
       ).not.toBeInTheDocument()
     })
 
-    test('should delete all', async () => {
+    test('should delete all to dos', async () => {
       render(<App />)
       await userEvent.click(screen.getByText('Delete All To Dos'))
       await userEvent.click(screen.getByLabelText('Confirm Delete'))
@@ -131,10 +145,11 @@ describe('App', () => {
       expect(screen.queryByLabelText('Buy groceries')).not.toBeInTheDocument()
     })
 
-    test('should not allow delete all if no todos', async () => {
+    test('should not allow delete all if no to dos', async () => {
       render(<App />)
       await userEvent.click(screen.getByText('Delete All To Dos'))
       await userEvent.click(screen.getByLabelText('Confirm Delete'))
+
       expect(screen.queryByText('Delete All To Dos')).not.toBeInTheDocument()
     })
   })

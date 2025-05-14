@@ -23,17 +23,19 @@ export default function App() {
       ...toDo,
       completed: toDo.id === id ? !toDo.completed : toDo.completed,
     }))
-
     setToDos(updatedToDos)
   }
 
   const handleSubmitToDo = () => {
-    const newToDos = [
-      ...toDos,
-      { id: crypto.randomUUID(), name: newToDo, completed: false },
-    ]
-    setToDos(newToDos)
-    setNewToDo('')
+    const trimmedToDo = newToDo.trim()
+    if (trimmedToDo) {
+      const newToDos = [
+        ...toDos,
+        { id: crypto.randomUUID(), name: newToDo, completed: false },
+      ]
+      setToDos(newToDos)
+      setNewToDo('')
+    }
   }
 
   const handleOpenConfirmation = () => {
@@ -67,7 +69,7 @@ export default function App() {
       <h1 className="text-6xl mt-10 mb-4 ">To Dos</h1>
       {!!toDos.length && (
         <button
-          className="p-2 text-red-500 outline-1 ml-2  opacity-75 hover:opacity-100 cursor-pointer"
+          className="p-2 text-red-500 outline-1 opacity-75 hover:opacity-100 cursor-pointer rounded"
           onClick={handleOpenConfirmation}
           disabled={!toDos.length}
         >
@@ -94,7 +96,6 @@ export default function App() {
           <button
             className="text-2xl p-2"
             aria-label="Submit New To Do"
-            name="submit"
             onClick={handleSubmitToDo}
             disabled={!newToDo}
           >
@@ -102,34 +103,43 @@ export default function App() {
           </button>
         </div>
         <div className="flex flex-col text-2xl">
-          {toDos.map(({ id, name, completed }) => (
-            <div key={id} className="max-w-400">
-              <label
-                className={`${
-                  completed ? 'line-through  text-gray-500' : null
-                }`}
-                htmlFor={name}
-              >
-                <input
-                  className="m-4 h-5 w-5 accent-teal-600"
-                  id={name}
-                  type="checkbox"
-                  checked={completed}
-                  onChange={() => toggleToDo(id)}
-                />
-                {name}
-              </label>
-              <button
-                className="font-medium p-2 text-red-500 ml-2 text-2xl opacity-75 hover:opacity-100"
-                aria-label="Delete To Do"
-                onClick={() => {
-                  handleDeleteToDo(id)
-                }}
-              >
-                x
-              </button>
+          {toDos.length ? (
+            toDos.map(({ id, name, completed }) => (
+              <div key={id} className="max-w-400">
+                <label
+                  className={`${
+                    completed ? 'line-through  text-gray-500' : null
+                  }`}
+                  htmlFor={name}
+                >
+                  <input
+                    className="m-4 h-5 w-5 accent-teal-600"
+                    id={name}
+                    type="checkbox"
+                    checked={completed}
+                    onChange={() => {
+                      toggleToDo(id)
+                    }}
+                  />
+                  {name}
+                </label>
+                <button
+                  className="font-medium p-2 text-red-500 ml-2 text-2xl opacity-75 hover:opacity-100"
+                  aria-label="Delete To Do"
+                  onClick={() => {
+                    handleDeleteToDo(id)
+                  }}
+                >
+                  x
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="h-100 italic text-gray-500 flex justify-center items-center text-center text-base">
+              Nothing to do yet!
+              <br /> Type your first to do above to get started
             </div>
-          ))}
+          )}
         </div>
       </div>
       <dialog
@@ -147,11 +157,14 @@ export default function App() {
           ?
         </div>
         <footer className="flex justify-around p-4 border-t-2 border-gray-200">
-          <button className="p-2 outline-1" onClick={handleCloseConfirmation}>
+          <button
+            className="p-2 outline-1 rounded hover:bg-gray-100"
+            onClick={handleCloseConfirmation}
+          >
             Cancel
           </button>
           <button
-            className="p-2 text-red-500 outline-1"
+            className="p-2 text-red-500 outline-1 rounded  hover:bg-red-50"
             onClick={handleConfirmDelete}
             aria-label="Confirm Delete"
           >
