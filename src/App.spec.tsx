@@ -111,13 +111,31 @@ describe('App', () => {
       expect(screen.getByLabelText('Bring dog to vet')).toBeInTheDocument()
       const deleteDogToDo = screen.getAllByLabelText('Delete To Do')[0]
       await userEvent.click(deleteDogToDo)
-      await userEvent.click(screen.getByText('Delete'))
+      await userEvent.click(screen.getByLabelText('Confirm Delete'))
 
       expect(setItemSpy).toHaveBeenCalledTimes(3)
 
       expect(
         screen.queryByLabelText('Bring dog to vet')
       ).not.toBeInTheDocument()
+    })
+
+    test('should delete all', async () => {
+      render(<App />)
+      await userEvent.click(screen.getByText('Delete All To Dos'))
+      await userEvent.click(screen.getByLabelText('Confirm Delete'))
+
+      expect(
+        screen.queryByLabelText('Bring dog to vet')
+      ).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('Buy groceries')).not.toBeInTheDocument()
+    })
+
+    test('should not allow delete all if no todos', async () => {
+      render(<App />)
+      await userEvent.click(screen.getByText('Delete All To Dos'))
+      await userEvent.click(screen.getByLabelText('Confirm Delete'))
+      expect(screen.queryByText('Delete All To Dos')).not.toBeInTheDocument()
     })
   })
 })

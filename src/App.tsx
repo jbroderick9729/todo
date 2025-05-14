@@ -36,9 +36,13 @@ export default function App() {
     setNewToDo('')
   }
 
+  const handleOpenConfirmation = () => {
+    modalRef.current?.showModal()
+  }
+
   const handleDeleteToDo = (id: UUID) => {
     setToDoToDelete(id)
-    modalRef.current?.showModal()
+    handleOpenConfirmation()
   }
 
   const handleCloseConfirmation = () => {
@@ -46,9 +50,11 @@ export default function App() {
     setToDoToDelete(null)
   }
 
-  const handleConfirmDeleteToDo = () => {
-    const newToDos = toDos.filter((toDo: ToDo) => toDo.id !== toDoToDelete)
-    setToDos(newToDos)
+  const handleConfirmDelete = () => {
+    setToDos(
+      toDoToDelete ? toDos.filter((toDo: ToDo) => toDo.id !== toDoToDelete) : []
+    )
+
     handleCloseConfirmation()
   }
 
@@ -58,11 +64,20 @@ export default function App() {
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-6xl mt-10 mb-5 ">To Dos</h1>
+      <h1 className="text-6xl mt-10 mb-4 ">To Dos</h1>
+      {!!toDos.length && (
+        <button
+          className="p-2 text-red-500 outline-1 ml-2  opacity-75 hover:opacity-100 cursor-pointer"
+          onClick={handleOpenConfirmation}
+          disabled={!toDos.length}
+        >
+          Delete All To Dos
+        </button>
+      )}
       <div className="flex flex-col justify-center">
         <div>
           <input
-            className="outline-none border-b-2 border-b-white w-100 placeholder:text-2xl placeholder:text-center"
+            className="outline-none border-b-2 border-b-white w-125 placeholder:text-2xl align-center placeholder:text-center text-2xl"
             aria-label="Enter New To Do"
             value={newToDo}
             onChange={(e) => {
@@ -88,7 +103,7 @@ export default function App() {
         </div>
         <div className="flex flex-col text-2xl">
           {toDos.map(({ id, name, completed }) => (
-            <div key={id}>
+            <div key={id} className="max-w-400">
               <label
                 className={`${
                   completed ? 'line-through  text-gray-500' : null
@@ -96,7 +111,7 @@ export default function App() {
                 htmlFor={name}
               >
                 <input
-                  className="m-4 h-5 w-5"
+                  className="m-4 h-5 w-5 accent-teal-600"
                   id={name}
                   type="checkbox"
                   checked={completed}
@@ -105,7 +120,7 @@ export default function App() {
                 {name}
               </label>
               <button
-                className="font-thin p-2 text-red-500 ml-2"
+                className="font-medium p-2 text-red-500 ml-2 text-2xl opacity-75 hover:opacity-100"
                 aria-label="Delete To Do"
                 onClick={() => {
                   handleDeleteToDo(id)
@@ -118,23 +133,27 @@ export default function App() {
         </div>
       </div>
       <dialog
-        className="m-auto backdrop:backdrop-brightness-80 backdrop:backdrop-blur-xs"
+        className="m-auto bg-gray-100 backdrop:backdrop-brightness-80 backdrop:backdrop-blur-xs"
         ref={modalRef}
       >
         <header className="flex justify-around p-4 border-b-2 border-gray-200">
-          <h2 className="text-2xl">Delete To Do?</h2>
+          <h2 className="text-2xl">Delete</h2>
         </header>
-        <div className="w-100 h-60 flex items-center justify-center p-6">
-          Are you sure you want to delete "
-          {toDos.find((toDo) => toDo.id === toDoToDelete)?.name}"?
+        <div className="w-100 h-40 flex items-center justify-center p-6">
+          Are you sure you want to delete
+          {toDoToDelete
+            ? ` "${toDos.find((toDo) => toDo.id === toDoToDelete)?.name}"`
+            : ' all to dos'}
+          ?
         </div>
         <footer className="flex justify-around p-4 border-t-2 border-gray-200">
           <button className="p-2 outline-1" onClick={handleCloseConfirmation}>
             Cancel
           </button>
           <button
-            className="bg-red-500 p-2 outline-1"
-            onClick={handleConfirmDeleteToDo}
+            className="p-2 text-red-500 outline-1"
+            onClick={handleConfirmDelete}
+            aria-label="Confirm Delete"
           >
             Delete
           </button>
