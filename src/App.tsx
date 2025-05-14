@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
+
+import DeleteConfirmationModal from './components/DeleteConfirmationModal'
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`
 type ToDo = {
@@ -16,7 +18,7 @@ export default function App() {
   )
   const [newToDo, setNewToDo] = useState('')
   const [toDoToDelete, setToDoToDelete] = useState<UUID | null | 'ALL'>()
-  const modalRef = useRef<HTMLDialogElement>(null)
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   const toggleToDo = (id: UUID) => {
     const updatedToDos = toDos.map((toDo: ToDo) => ({
@@ -39,7 +41,7 @@ export default function App() {
   }
 
   const handleOpenConfirmation = () => {
-    modalRef.current?.showModal()
+    setShowConfirmation(true)
   }
 
   const handleDelete = (id: UUID | 'ALL') => {
@@ -48,7 +50,7 @@ export default function App() {
   }
 
   const handleCloseConfirmation = () => {
-    modalRef.current?.close()
+    setShowConfirmation(false)
     setToDoToDelete(null)
   }
 
@@ -146,13 +148,12 @@ export default function App() {
           )}
         </div>
       </div>
-      <dialog
-        className="m-auto bg-gray-100 backdrop:backdrop-brightness-80 backdrop:backdrop-blur-xs"
-        ref={modalRef}
+
+      <DeleteConfirmationModal
+        isOpen={showConfirmation}
+        onCancel={handleCloseConfirmation}
+        onSubmit={handleConfirmDelete}
       >
-        <header className="flex justify-around p-4 border-b-2 border-gray-200">
-          <h2 className="text-2xl">Delete</h2>
-        </header>
         <div className="w-100 h-40 flex items-center justify-center p-6">
           Are you sure you want to delete
           {toDoToDelete === 'ALL'
@@ -160,22 +161,7 @@ export default function App() {
             : ` "${toDos.find((toDo) => toDo.id === toDoToDelete)?.name}"`}
           ?
         </div>
-        <footer className="flex justify-around p-4 border-t-2 border-gray-200">
-          <button
-            className="p-2 outline-1 rounded hover:bg-gray-100"
-            onClick={handleCloseConfirmation}
-          >
-            Cancel
-          </button>
-          <button
-            className="p-2 text-red-500 outline-1 rounded  hover:bg-red-50"
-            onClick={handleConfirmDelete}
-            aria-label="Confirm Delete"
-          >
-            Delete
-          </button>
-        </footer>
-      </dialog>
+      </DeleteConfirmationModal>
     </div>
   )
 }
